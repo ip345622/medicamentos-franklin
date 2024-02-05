@@ -1,21 +1,96 @@
 // import mongoose from "mongoose"
+import { Request, Response } from "express";
+import { createAccessToken } from "../libs/jwt";
+import { LoginResult, loginUser } from "../utils/login"
+import User, { IUser } from '../models/auth.schema'
+import Doctor, { IDoctor } from '../models/doctor.schema'
+import { ValidateExisting } from "../middleware/valitdateEmail";
 
-// import User from '../models/auth.schema'
-// import Doctor from '../models/doctor.schema'
+export async function register(req: Request, res: Response): Promise<any> {
+  const { email } = req.body;
+  try {
+    const validate = await ValidateExisting(email);
+    // console.log(validate);
+    if (validate.success) return res.status(400).json("The user has already been registered");
+    const user: IUser = new User({
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password,
+      rol: req.body.rol
+    });
+    // Ecriptar
+    user.password = await user.encryptPassword(user.password);
+    // guardar usuario
+    const saveUser = await user.save();
 
-export const register = async (_req: any,res: { send: (arg0: string) => void }) => {
-    res.send("Registrar usuario y administrador");
+    const token = await createAccessToken({ id: saveUser._id });
+    res.cookie("token", token);
+    res.json({
+      id: saveUser._id,
+      username: saveUser.username,
+      email: saveUser.email,
+    });
+  }
+  catch (error) {
+    res.status(500).json(error);
+  }
 }
 
-export const registerDoctor = (_req: any, res: { send: (arg0: string) => void }) => {
-    res.send("Registrar doctores");
+
+export const registerDoctor = async (req: Request, res: Response): Promise<any> => {
+  const {email} = req.body;
+  try {
+    const validate = await ValidateExisting(email);
+    // console.log(validate);
+    if (validate.success) return res.status(400).json("The user has already been registered");
+    const doctor: IDoctor = new Doctor({
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password,
+      speciality: req.body.speciality,
+      identification: req.body.identification
+    });
+    doctor.password = await doctor.encryptPassword(doctor.password);
+
+    const saveDoctor = await doctor.save();
+
+    const token = await createAccessToken({ id: saveDoctor._id });
+    res.cookie("token", token);
+    res.json({
+      id: saveDoctor._id,
+      username: saveDoctor.username,
+      email: saveDoctor.email,
+      speciality: saveDoctor.speciality,
+    });
+
+  } catch (error) {
+    res.status(400).json(error);
+  }
 }
 
 
-export const login = (_req: any, res: { send: (arg0: string) => void }) => {
-    res.send("Login En general");
+export const login = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  try {
+    const loginResult: LoginResult = await loginUser(email, password);
+
+    if (loginResult.success) {
+      // Aquí puedes manejar la respuesta exitosa según tus necesidades
+      res.status(200).json({ success: true, message: loginResult.message });
+    } else {
+      // Aquí puedes manejar la respuesta para casos de error
+      res.status(401).json({ success: false, message: loginResult.message });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Error en el servidor.' });
+  }
 }
 
-export const logout = (_req: any, res: { send: (arg0: string) => void }) => {
-    res.send("Cerrar sesión");
+export const logout = (_req: Request, res: Response) => {
+  res.cookie('token', "", {
+    expires: new Date(0)
+  })
+  return res.sendStatus(200)
 }
+

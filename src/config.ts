@@ -1,0 +1,1 @@
+export const tokenSecret = 'your-256-bit-secret';
