@@ -1,10 +1,11 @@
-import User from '../models/auth.schema';
-import Doctor from '../models/doctor.schema';
+import User from '../models/auth.model';
+import Doctor from '../models/doctor.model';
 import bcrypt from "bcryptjs";
 
 export interface LoginResult {
     success: boolean;
     message: string;
+    data: string;
   }
   
 export  async function loginUser(email: string, password: string): Promise<LoginResult> {
@@ -17,9 +18,9 @@ export  async function loginUser(email: string, password: string): Promise<Login
         const passwordMatch = await bcrypt.compare(password, user.password);
   
         if (passwordMatch) {
-          return { success: true, message: 'Inicio de sesión exitoso como usuario.' };
+          return { success: true, message: 'Inicio de sesión exitoso como usuario.', data: user.rol};
         } else {
-          return { success: false, message: 'Contraseña incorrecta.' };
+          return { success: false, message: 'Contraseña incorrecta.', data: '' };
         }
       }
   
@@ -31,16 +32,16 @@ export  async function loginUser(email: string, password: string): Promise<Login
         const passwordMatch = await bcrypt.compare(password, doctor.password);
   
         if (passwordMatch) {
-          return { success: true, message: 'Inicio de sesión exitoso como doctor.' };
+          return { success: true, message: 'Inicio de sesión exitoso como doctor.', data: doctor._id };
         } else {
-          return { success: false, message: 'Contraseña incorrecta.' };
+          return { success: false, message: 'Contraseña incorrecta.', data: ''};
         }
       }
   
       // Si no se encuentra en ninguna de las bases de datos
-      return { success: false, message: 'Usuario no encontrado.' };
+      return { success: false, message: 'Usuario no encontrado.', data: '' };
     } catch (error) {
-      return { success: false, message: 'Error al iniciar sesión.' };
+      return { success: false, message: 'Error al iniciar sesión.', data: '' };
     }
   }
   

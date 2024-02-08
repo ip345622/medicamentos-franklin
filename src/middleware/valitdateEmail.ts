@@ -1,5 +1,5 @@
-import User from '../models/auth.schema';
-import Doctor from '../models/doctor.schema';
+import User from '../models/auth.model';
+import Doctor from '../models/doctor.model';
 
 export async function ValidateExisting(email: string): Promise<{ success: boolean, message: string }> {
     const userFound = await User.findOne({ email: email });
