@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 
+export interface Iappointment extends Document {
+    id_user: string;
+    id_doctor: string;
+    description: string;
+    status: string;
+}
 
 
 const appointmentSchema = new mongoose.Schema({

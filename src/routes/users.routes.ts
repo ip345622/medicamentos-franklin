@@ -4,7 +4,7 @@ import { getUsers,getDoctors,updateDoctor,updateUser,deleteDoctor,deleteUser } f
 const router = Router();
 
 router.get('/users',getUsers);
-router.get('/doctor',getDoctors);
+router.get('/doctors',getDoctors);
 
 router.put('/user/:id',updateUser);
 router.put('/doctor/:id',updateDoctor);
