@@ -1,7 +1,7 @@
-// import mongoose from "mongoose"
-import Doctor, { IDoctor } from '../models/doctor.schema'
-import User, { IUser } from '../models/auth.schema'
+import Doctor, { IDoctor } from '../models/doctor.model'
+import User, { IUser } from '../models/auth.model'
 import { Request, Response } from "express";
+
 
 export const getUsers = async(_req: Request, res: Response):Promise<any> => {
     try {
@@ -22,7 +22,6 @@ export const getDoctors = async(_req: Request, res: Response) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
-
 
 export const updateUser = async(req: Request, res: Response) => {
     try {

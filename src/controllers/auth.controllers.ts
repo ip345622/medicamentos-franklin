@@ -1,9 +1,9 @@
 // import mongoose from "mongoose"
 import { Request, Response } from "express";
-import { createAccessToken } from "../libs/jwt";
+import jwt from "jsonwebtoken";
 import { LoginResult, loginUser } from "../utils/login"
-import User, { IUser } from '../models/auth.schema'
-import Doctor, { IDoctor } from '../models/doctor.schema'
+import User, { IUser } from '../models/auth.model'
+import Doctor, { IDoctor } from '../models/doctor.model'
 import { ValidateExisting } from "../middleware/valitdateEmail";
 
 export async function register(req: Request, res: Response): Promise<any> {
@@ -23,8 +23,10 @@ export async function register(req: Request, res: Response): Promise<any> {
     // guardar usuario
     const saveUser = await user.save();
 
-    const token = await createAccessToken({ id: saveUser._id });
-    res.cookie("token", token);
+    const token: string = jwt.sign({_id: saveUser._id},process.env.TOKEN_SECRET || 'your-256-bit-secret',{
+      expiresIn: 60 * 60 * 24 
+     });
+     res.cookie("token", token);
     res.json({
       id: saveUser._id,
       username: saveUser.username,
@@ -54,8 +56,10 @@ export const registerDoctor = async (req: Request, res: Response): Promise<any> 
 
     const saveDoctor = await doctor.save();
 
-    const token = await createAccessToken({ id: saveDoctor._id });
-    res.cookie("token", token);
+    const token: string = jwt.sign({_id: saveDoctor._id},process.env.TOKEN_SECRET || 'your-256-bit-secret',{
+      expiresIn: 60 * 60 * 24 
+     });
+     res.cookie("token", token);
     res.json({
       id: saveDoctor._id,
       username: saveDoctor.username,
@@ -77,10 +81,27 @@ export const login = async (req: Request, res: Response) => {
     if (loginResult.success) {
       // Aquí puedes manejar la respuesta exitosa según tus necesidades
       res.status(200).json({ success: true, message: loginResult.message });
+      const rol = loginResult.data;
+      console.log(rol);
+      
+      // const token: string = jwt.sign({rol: rol},process.env.TOKEN_SECRET || 'your-256-bit-secret',{
+      //   expiresIn: 60 * 60 * 24 
+      //  });
+      //  res.cookie("token", token);
+
+      
     } else {
       // Aquí puedes manejar la respuesta para casos de error
       res.status(401).json({ success: false, message: loginResult.message });
+      const token: string = jwt.sign({_id: loginResult.data},process.env.TOKEN_SECRET || 'your-256-bit-secret',{
+        expiresIn: 60 * 60 * 24 
+       });
+       res.cookie("token", token);
+
     }
+
+
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Error en el servidor.' });
