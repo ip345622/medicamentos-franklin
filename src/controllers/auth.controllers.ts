@@ -79,28 +79,21 @@ export const login = async (req: Request, res: Response) => {
     const loginResult: LoginResult = await loginUser(email, password);
 
     if (loginResult.success) {
-      // Aquí puedes manejar la respuesta exitosa según tus necesidades
-      res.status(200).json({ success: true, message: loginResult.message });
       const rol = loginResult.data;
       console.log(rol);
       
-      // const token: string = jwt.sign({rol: rol},process.env.TOKEN_SECRET || 'your-256-bit-secret',{
-      //   expiresIn: 60 * 60 * 24 
-      //  });
-      //  res.cookie("token", token);
+      const token: string = jwt.sign({rol: rol},process.env.TOKEN_SECRET || 'your-256-bit-secret',{
+        expiresIn: 60 * 60 * 24 
+       });
+       res.cookie("token", token);
+       res.status(200).json({ success: true, message: loginResult.message });
 
       
     } else {
       // Aquí puedes manejar la respuesta para casos de error
       res.status(401).json({ success: false, message: loginResult.message });
-      const token: string = jwt.sign({_id: loginResult.data},process.env.TOKEN_SECRET || 'your-256-bit-secret',{
-        expiresIn: 60 * 60 * 24 
-       });
-       res.cookie("token", token);
 
     }
-
-
     
   } catch (error) {
     console.error(error);

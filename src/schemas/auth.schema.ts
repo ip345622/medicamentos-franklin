@@ -42,9 +42,6 @@ export const SchemaDoctor = z.object({
 
 // login
 export const loginSchema = z.object({
-    username: z.string({
-        required_error: "username is required"
-    }),
      email: z.string({
          required_error: "Email is required"
      }).email({
