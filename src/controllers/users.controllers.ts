@@ -1,74 +1,94 @@
-import { Request, Response } from "express"
-// import mongoose from "mongoose"
-
-import User from '../models/auth.model'
-import Doctor from '../models/doctor.model'
-import mongoose from "mongoose";
+import Doctor, { IDoctor } from '../models/doctor.model'
+import User, { IUser } from '../models/auth.model'
+import { Request, Response } from "express";
 
 
-export const getUsers = async(_req: Request, res: Response) => {
+export const getUsers = async(_req: Request, res: Response):Promise<any> => {
     try {
-        const users = await User.find();
-        if (users.length === 0) {
-            return res.status(200).json({message: 'Not found users'});
-        }
-        return res.json(users);
+        const users: IUser[] = await User.find().lean(); 
+        res.status(200).json(users);
     } catch (error) {
-        return res.status(500).json("Error del servidor");
+        console.error('Error while fetching users: ', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 }
-
 
 export const getDoctors = async(_req: Request, res: Response) => {
     try {
-        const doctors = await Doctor.find();
-        if (doctors.length === 0) {
-            return res.status(200).json({message: 'Not found doctors'});
-        }
-        return res.json(doctors);
+        const doctors: IDoctor[] = await Doctor.find().lean(); 
+        res.status(200).json(doctors);
     } catch (error) {
-        return res.status(500).json("Error del servidor");
+        console.error('Error while fetching doctors: ', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 }
 
-
 export const updateUser = async(req: Request, res: Response) => {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({message: 'ID no válido'});
-    }
-    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-    if (!user) return res.status(404).json({message: 'User not found'});
-    return res.json(user);
-};
+    try {
+        const { id } = req.params;
+        const { username, email, password, rol } = req.body;
 
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        if (username) user.username = username;
+        if (email) user.email = email;
+        if (password) user.password = password;
+        if (rol) user.rol = rol;
+
+        await user.save();
+        return res.status(200).json({ message: 'Usuario actualizado exitosamente', user });
+    } catch (error) {
+        console.error('Error actualizando usuario:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+    }
+}
 
 export const updateDoctor = async(req: Request, res: Response) => {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({message: 'ID no válido'});
+    try {
+        const { id } = req.params;
+        console.log(id)
+        const { username, email, password, rol, speciality, identification } = req.body;
+
+        const doctor = await Doctor.findById(id);
+        if (!doctor) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        if (username) doctor.username = username;
+        if (email) doctor.email = email;
+        if (password) doctor.password = password;
+        if (speciality) doctor.speciality = rol;
+        if (identification) doctor.identification = identification
+
+        await doctor.save();
+        return res.status(200).json({ message: 'Usuario actualizado exitosamente', doctor });
+    } catch (error) {
+        console.error('Error actualizando usuario:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
     }
-    const doctor = await Doctor.findByIdAndUpdate(id, req.body, { new: true });
-    if (!doctor) return res.status(404).json({message: 'User not found'});
-    return res.json(doctor);
 }
 
 export const deleteUser = async(req: Request, res: Response) => {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({message: 'ID no válido'});
+    try{
+        const Id = req.params.id
+        const response = await User.findByIdAndDelete(Id)
+        res.status(200).json(response)
+    } catch(error){
+        console.error('Error while deleting user: ', error)
+        res.status(500).json({ error: 'Internal Server Error'})
     }
-    const user = await User.findByIdAndDelete(id);
-    if (!user) return res.status(404).json({message: 'Doctor not found'});
-    return res.sendStatus(204);
 }
 
 export const deleteDoctor = async(req: Request, res: Response) => {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({message: 'ID no válido'});
+    try{
+        const Id = req.params.id
+        const response = await Doctor.findByIdAndDelete(Id)
+        res.status(200).json(response)
+    } catch(error){
+        console.error('Error while deleting doctor: ', error)
+        res.status(500).json({ error: 'Internal Server Error'})
     }
-    const doctor = await Doctor.findByIdAndDelete(id);
-    if (!doctor) return res.status(404).json({message: 'Doctor not found'});
-    return res.sendStatus(204);
 }
