@@ -18,7 +18,7 @@ export  async function loginUser(email: string, password: string): Promise<Login
         const passwordMatch = await bcrypt.compare(password, user.password);
   
         if (passwordMatch) {
-          return { success: true, message: 'Inicio de sesión exitoso como usuario.', data: user.rol};
+          return { success: true, message: user.rol, data: user.rol};
         } else {
           return { success: false, message: 'Contraseña incorrecta.', data: '' };
         }
@@ -32,7 +32,7 @@ export  async function loginUser(email: string, password: string): Promise<Login
         const passwordMatch = await bcrypt.compare(password, doctor.password);
   
         if (passwordMatch) {
-          return { success: true, message: 'Inicio de sesión exitoso como doctor.', data: doctor._id };
+          return { success: true, message: 'Doctor', data: doctor._id };
         } else {
           return { success: false, message: 'Contraseña incorrecta.', data: ''};
         }
