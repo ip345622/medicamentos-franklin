@@ -86,12 +86,12 @@ export const login = async (req: Request, res: Response) => {
         expiresIn: 60 * 60 * 24 
        });
        res.cookie("token", token);
-       res.status(200).json({ success: true, message: loginResult.message });
+       res.status(200).json({data: loginResult.data, message: loginResult.message });
 
       
     } else {
       // Aquí puedes manejar la respuesta para casos de error
-      res.status(401).json({ success: false, message: loginResult.message });
+      res.status(401).json({ data: loginResult.data, message: loginResult.message });
 
     }
     

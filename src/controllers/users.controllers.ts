@@ -16,12 +16,19 @@ export const getUsers = async(_req: Request, res: Response):Promise<any> => {
 export const getDoctors = async(_req: Request, res: Response) => {
     try {
         const doctors: IDoctor[] = await Doctor.find().lean(); 
-        res.status(200).json(doctors);
+        // Mapear los doctores para obtener solo el nombre y la especialidad
+        const simplifiedDoctors = doctors.map((doctor) => ({
+            id:doctor._id,
+            name: doctor.username,
+            specialty: doctor.speciality,
+        }));
+        res.status(200).json(simplifiedDoctors);
     } catch (error) {
         console.error('Error while fetching doctors: ', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
 
 export const updateUser = async(req: Request, res: Response) => {
     try {

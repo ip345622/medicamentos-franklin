@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 export interface Iappointment extends Document {
     id_user: string;
     id_doctor: string;
-    description: string;
-    status: string;
+    data: string;
+    time: string;
 }
 
 
@@ -18,13 +18,13 @@ const appointmentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    description:{
+    data:{
         type: String,
     },
-    status:{
+    time:{
         type: String,
-        enum: ['pending', 'confirmed', 'canceled', 'postponed'],
-        default: 'pending',
+        // enum: ['pending', 'confirmed', 'canceled', 'postponed'],
+        // default: 'pending',
     }
     
 },

@@ -18,7 +18,7 @@ export  async function loginUser(email: string, password: string): Promise<Login
         const passwordMatch = await bcrypt.compare(password, user.password);
   
         if (passwordMatch) {
-          return { success: true, message: user.rol, data: user.rol};
+          return { success: true, message: user.rol, data: user._id};
         } else {
           return { success: false, message: 'Contraseña incorrecta.', data: '' };
         }
