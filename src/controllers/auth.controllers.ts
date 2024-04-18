@@ -21,6 +21,8 @@ export async function register(req: Request, res: Response): Promise<any> {
     // Ecriptar
     user.password = await user.encryptPassword(user.password);
     // guardar usuario
+    console.log(user);
+    
     const saveUser = await user.save();
 
     const token: string = jwt.sign({_id: saveUser._id},process.env.TOKEN_SECRET || 'your-256-bit-secret',{

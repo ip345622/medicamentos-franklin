@@ -1,7 +1,9 @@
 //import mongoose from "mongoose";
 import { Request, Response } from "express";
 import Appointment,{ Iappointment } from "../models/appointment.schema";
-import Doctor from '../models/doctor.model'
+import Doctor from '../models/doctor.model';
+import User from '../models/auth.model'
+
 
 
 
@@ -31,17 +33,25 @@ export const getAppointments = async (_req: Request, res: Response): Promise<any
 
         // Obtener los IDs únicos de los doctores en las citas
         const doctorIds = Array.from(new Set(appointments.map(appointment => appointment.id_doctor)));
+        const userIds = Array.from(new Set(appointments.map(appointment => appointment.id_user)));
 
         // Obtener los nombres de los doctores
         const doctors = await Doctor.find({ _id: { $in: doctorIds } }).lean();
-
-        // Mapear los nombres de los doctores a las citas
-        const appointmentsWithDoctorNames = appointments.map(appointment => {
+        const users = await User.find({ _id: { $in: userIds } }).lean();
+        
+        const appointmentsWithNames = appointments.map(appointment => {
             const doctor = doctors.find(doctor => doctor._id.toString() === appointment.id_doctor);
-            return { ...appointment, doctorName: doctor?.username};
+            const user = users.find(user => user._id.toString() === appointment.id_user.toString());
+            // console.log(user);
+            
+            return { ...appointment, doctorName: doctor ? doctor.username : 'Doctor no encontrado', userName: user ? user.username : 'Usuario no encontrado' };
         });
-
-        res.status(200).json(appointmentsWithDoctorNames);
+        
+        // console.log(doctors,users);
+        
+        
+        res.status(200).json(appointmentsWithNames);
+        
     } catch (error) {
         console.error('Error fetching appointments: ', error);
         res.status(500).json({ error: 'Internal Server Error' });

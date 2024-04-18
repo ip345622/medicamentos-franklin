@@ -19,8 +19,10 @@ export const getDoctors = async(_req: Request, res: Response) => {
         // Mapear los doctores para obtener solo el nombre y la especialidad
         const simplifiedDoctors = doctors.map((doctor) => ({
             id:doctor._id,
-            name: doctor.username,
+            username: doctor.username,
+            email: doctor.email,
             specialty: doctor.speciality,
+            identification: doctor.identification
         }));
         res.status(200).json(simplifiedDoctors);
     } catch (error) {
@@ -33,7 +35,7 @@ export const getDoctors = async(_req: Request, res: Response) => {
 export const updateUser = async(req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { username, email, password, rol } = req.body;
+        const { username, email, password} = req.body;
 
         const user = await User.findById(id);
         if (!user) {
@@ -42,8 +44,8 @@ export const updateUser = async(req: Request, res: Response) => {
 
         if (username) user.username = username;
         if (email) user.email = email;
-        if (password) user.password = password;
-        if (rol) user.rol = rol;
+        if (password) user.password = await user.encryptPassword(user.password);
+        // if (rol) user.rol = rol;
 
         await user.save();
         return res.status(200).json({ message: 'Usuario actualizado exitosamente', user });
@@ -66,7 +68,7 @@ export const updateDoctor = async(req: Request, res: Response) => {
 
         if (username) doctor.username = username;
         if (email) doctor.email = email;
-        if (password) doctor.password = password;
+        if (password) doctor.password =await doctor.encryptPassword(doctor.password);
         if (speciality) doctor.speciality = rol;
         if (identification) doctor.identification = identification
 
