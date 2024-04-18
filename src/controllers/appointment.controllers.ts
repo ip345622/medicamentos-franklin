@@ -43,12 +43,11 @@ export const getAppointments = async (_req: Request, res: Response): Promise<any
             const doctor = doctors.find(doctor => doctor._id.toString() === appointment.id_doctor);
             const user = users.find(user => user._id.toString() === appointment.id_user.toString());
             // console.log(user);
-            
             return { ...appointment, doctorName: doctor ? doctor.username : 'Doctor no encontrado', userName: user ? user.username : 'Usuario no encontrado' };
         });
         
         // console.log(doctors,users);
-        
+        // if(a)
         
         res.status(200).json(appointmentsWithNames);
         
